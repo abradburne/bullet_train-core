@@ -1,7 +1,7 @@
-<% except ||= [] %>
-<% unless except.include?(:index) && except.include?(:create) %>
+<% except ||= [] -%>
+<% unless except.include?(:index) && except.include?(:create) -%>
 /scaffolding/absolutely_abstract/creative_concepts/{absolutely_abstract_creative_concept_id}/completely_concrete/tangible_things:
-  <% unless except.include?(:index) %>
+  <% unless except.include?(:index) -%>
   get:
     tags:
       - Scaffolding::CompletelyConcrete::TangibleThing
@@ -12,7 +12,7 @@
         in: path
         required: true
         schema:
-          type: string
+          type: integer
       - $ref: "#/components/parameters/after"
     responses:
       "404":
@@ -31,9 +31,9 @@
               items:
                 $ref: "#/components/schemas/ScaffoldingCompletelyConcreteTangibleThingAttributes"
             example:
-              🚅 get_example
-  <% end %>
-  <% unless except.include?(:create) %>
+              🚅 get_examples
+  <% end -%>
+  <% unless except.include?(:create) -%>
   post:
     tags:
       - Scaffolding::CompletelyConcrete::TangibleThing
@@ -44,7 +44,7 @@
         in: path
         required: true
         schema:
-          type: string
+          type: integer
     requestBody:
       description: "Information about a new Tangible Thing"
       required: true
@@ -69,11 +69,11 @@
               $ref: "#/components/schemas/ScaffoldingCompletelyConcreteTangibleThingAttributes"
             example:
               🚅 post_examples
-  <% end %>
-<% end %>
-<% unless except.include?(:show) && except.include?(:update) && except.include?(:destroy) %>
+  <% end -%>
+<% end -%>
+<% unless except.include?(:show) && except.include?(:update) && except.include?(:destroy) -%>
 /scaffolding/completely_concrete/tangible_things/{id}:
-  <% unless except.include?(:show) %>
+  <% unless except.include?(:show) -%>
   get:
     tags:
       - Scaffolding::CompletelyConcrete::TangibleThing
@@ -92,8 +92,8 @@
               $ref: "#/components/schemas/ScaffoldingCompletelyConcreteTangibleThingAttributes"
             example:
               🚅 get_example
-  <% end %>
-  <% unless except.include?(:update) %>
+  <% end -%>
+  <% unless except.include?(:update) -%>
   put:
     tags:
       - Scaffolding::CompletelyConcrete::TangibleThing
@@ -125,8 +125,8 @@
               $ref: "#/components/schemas/ScaffoldingCompletelyConcreteTangibleThingAttributes"
             example:
               🚅 put_example
-  <% end %>
-  <% unless except.include?(:destroy) %>
+  <% end -%>
+  <% unless except.include?(:destroy) -%>
   delete:
     tags:
       - Scaffolding::CompletelyConcrete::TangibleThing
@@ -139,5 +139,5 @@
         description: "Not Found"
       "204":
         description: "No Content"
-  <% end %>
-<% end %>
+  <% end -%>
+<% end -%>
