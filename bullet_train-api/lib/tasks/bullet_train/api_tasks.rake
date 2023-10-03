@@ -145,5 +145,39 @@ namespace :bullet_train do
       end
     end
 
+    desc "Export the OpenAPI schema for the application bundling the adjacent markdown refs." \
+      "You must be in the root of the ClickFunnels admin app."
+    task export_openapi_schema_bundle: :environment do
+      unless system("which redocly > /dev/null 2>&1")
+        puts "'redocly' CLI is not installed. You need to install it first."
+        exit
+      end
+
+      # Check if the relative path "app/views/openapi" is present, this is where
+      # we'll put the rendered schema and its bundled copy.
+      path = "app/views/api/v2/open_api/"
+      unless Dir.exist?(path)
+        puts "The path #{path} is not present. You need to be in the app's root directory."
+        exit
+      end
+
+      @version = BulletTrain::Api.current_version
+      filename = "openapi-#{Time.now.strftime("%Y%m%d-%H%M%S")}"
+      File.open(path + filename + ".yaml", "w+") do |f|
+        f.binmode
+        f.write(
+          ApplicationController.renderer.render(
+            template: "api/#{@version}/open_api/index",
+            layout: false,
+            format: :text,
+            assigns: {version: @version}
+          )
+        )
+      end
+
+      # Run the `redocly bundle`.
+      system("redocly bundle #{path + filename}.yaml --output #{path + filename}-bundled.yaml")
+    end
+
   end
 end
