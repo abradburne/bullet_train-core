@@ -7,13 +7,6 @@ module Api
       lines.unshift(first_line).join.html_safe
     end
 
-    # TODO: Remove this method? It's not being used anywhere
-    def components_for(model)
-      for_model model do
-        indent(render("api/#{@version}/open_api/#{model.name.underscore.pluralize}/components"), 2)
-      end
-    end
-
     def current_model
       @model_stack.last
     end
