@@ -45,6 +45,10 @@ module Api
     def automatic_components_for(model, locals: {})
       path = "app/views/api/#{@version}"
       paths = [path, "app/views"] + gem_paths.product(%W[/#{path} /app/views]).map(&:join)
+
+      # Transform values the same way we do for Jbuilder templates
+      Jbuilder::Schema::Template.prepend ValuesTransformer
+
       jbuilder = Jbuilder::Schema.renderer(paths, locals: {
         # If we ever get to the point where we need a real model here, we should implement an example team in seeds that we can source it from.
         model.name.underscore.split("/").last.to_sym => model.new,
@@ -61,6 +65,9 @@ module Api
       )
 
       attributes_output = JSON.parse(schema_json)
+
+      # Add "Attributes" part to $ref's
+      update_ref_values!(attributes_output)
 
       # Rails attachments aren't technically attributes in a model,
       # so we add the attributes manually to make them available in the API.
@@ -106,27 +113,34 @@ module Api
       end
     end
 
-    def attribute(attribute)
-      heading = t("#{current_model.name.underscore.pluralize}.fields.#{attribute}.heading")
-      attribute_data = current_model.columns_hash[attribute.to_s]
-
-      # Default to `string` when the type returns nil.
-      type = attribute_data.nil? ? "string" : attribute_data.type
-
-      attribute_block = <<~YAML
-        #{attribute}:
-          description: "#{heading}"
-          type: #{type}
-      YAML
-      indent(attribute_block.chomp, 2)
-    end
-    alias_method :parameter, :attribute
-
     private
 
     def has_strong_parameters?(controller)
       methods = controller.action_methods
       methods.include?("create") || methods.include?("update")
+    end
+
+    def update_ref_values!(hash)
+      hash.each do |key, value|
+        if key == "$ref" && value.is_a?(String) && !value.include?("Attributes")
+          # Extract the part after "#/components/schemas/"
+          schema_part = value.split("#/components/schemas/").last
+
+          # Capitalize each part and join them
+          camelized_schema = schema_part.split("/").map(&:camelize).join
+
+          # Update the value
+          hash[key] = "#/components/schemas/#{camelized_schema}Attributes"
+        elsif value.is_a?(Hash)
+          # Recursively call the method for nested hashes
+          update_ref_values!(value)
+        elsif value.is_a?(Array)
+          # Recursively call the method for each hash in the array
+          value.each do |item|
+            update_ref_values!(item) if item.is_a?(Hash)
+          end
+        end
+      end
     end
   end
 end
