@@ -66,14 +66,12 @@ module FactoryBot
       factory_path = "test/factories/#{model_name.collection}.rb"
 
       if count > 1
-        # cache_key = [:example_list, model_name.param_key, File.ctime(factory_path)]
-        # values = Rails.cache.fetch(cache_key) { FactoryBot.example_list(model, count) }
-        values = FactoryBot.example_list(model, count)
+        cache_key = [:example_list, model_name.param_key, File.ctime(factory_path)]
+        values = Rails.cache.fetch(cache_key) { FactoryBot.example_list(model, count) }
         var_name = model_name.element.pluralize
       else
-        # cache_key = [:example, model_name.param_key, File.ctime(factory_path)]
-        # values = Rails.cache.fetch(cache_key) { FactoryBot.example(model) }
-        values = FactoryBot.example(model)
+        cache_key = [:example, model_name.param_key, File.ctime(factory_path)]
+        values = Rails.cache.fetch(cache_key) { FactoryBot.example(model) }
         var_name = model_name.element
       end
 
